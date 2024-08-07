@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Total Cost Calculator</title>
+   
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            background-image: linear-gradient( 83.2deg,  rgba(150,93,233,1) 10.8%, rgba(99,88,238,1) 94.3% );
+            font-family: 'Poppins', sans-serif;
+        }
+        .calculator-container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .card-header {
+            background-image: linear-gradient( 83.2deg,  rgba(150,93,233,1) 10.8%, rgba(99,88,238,1) 94.3% );
+            color: white;
+            border-radius: 10px 10px 0 0;
+            padding: 20px;
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .result-container, .analysis-container, .chart-container {
+            margin-top: 20px;
+            text-align: center;
+        }
+        .btn-delete {
+            background-image: radial-gradient( circle 860px at 11.8% 33.5%,  rgba(240,30,92,1) 0%, rgba(244,49,74,1) 30.5%, rgba(249,75,37,1) 56.1%, rgba(250,88,19,1) 75.6%, rgba(253,102,2,1) 100.2% );
+            color: white;
+            border: none;
+            transform: translate(1.2);
+            transition: all linear .3s;
+        }
+        .btn-delete:hover {
+           
+            transform: translate(1);
+            transition: all linear .3s;
+        }
+        .expense-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            background: #f9f9f9;
+            border-radius: 5px;
+        }
+        canvas {
+            max-width: 100%;
+            height: auto;
+        }
+        .cost-analysis-head{
+            color: rgb(255, 255, 255);
+            font-size: 30px;
+            padding: 10px 0;
+            background-image: linear-gradient( 83.2deg,  rgba(150,93,233,1) 10.8%, rgba(99,88,238,1) 94.3% );
+            
+        }
+        .cost-analysis-para{
+            font-size: 20px;
+        }
+        .head h4{
+            font-family: 'Poppins',sans-serif;
+            font-size: 30px;
+            color: rgb(255, 255, 255);
+            text-align: center;
+            padding: 10px 0;
+            background-image: linear-gradient( 83.2deg,  rgba(150,93,233,1) 10.8%, rgba(99,88,238,1) 94.3% );
+        }
+        .add_expense_btn{
+            margin: 20px 0;
+            text-align: center;
+            border: none;
+            font-size: 20px;
+            box-shadow: 2px 2px 10px rgb(171, 170, 170);
+            background-image: linear-gradient( 109.6deg,  rgba(62,161,219,1) 11.2%, rgba(93,52,236,1) 100.2% );
+        }
+        .excel_btn{
+            margin: 20px 0;
+            text-align: center;
+            border: none;
+            font-size: 20px;
+            box-shadow: 2px 2px 10px rgb(171, 170, 170);
+            background-image: linear-gradient( 109.6deg,  rgba(62,161,219,1) 11.2%, rgba(93,52,236,1) 100.2% );
+        }
+    </style>
+</head>
+<body>
+    <div class="container calculator-container">
+        <div class="card">
+            <div class="card-header">
+                <h1 class="mb-0">Student Total Cost Calculator</h1>
+            </div>
+            <div class="card-body">
+                <form id="cost-calculator">
+                    <div class="form-group">
+                        <label for="month-selector">Select Month:</label>
+                        <input type="month" id="month-selector" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="income">Total Income (Tk):</label>
+                        <input type="number" id="income" class="form-control" placeholder="Enter total income" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="expense-name">Expense Name:</label>
+                        <input type="text" id="expense-name" class="form-control" placeholder="Enter expense name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="expense-cost">Expense Cost (Tk):</label>
+                        <input type="number" id="expense-cost" class="form-control" placeholder="Enter expense cost" required>
+                    </div>
+                    <a type="button" class="btn add_expense_btn btn-success" onclick="addCustomExpense()">Add Expense</a>
+                </form>
+                <div id="expenses-list">
+                    <!-- Custom expense items will be added here -->
+                </div>
+                <div class="result-container">
+                    <h3 id="total-cost">Total Cost: 0.00 Tk</h3>
+                </div>
+                <div class="text-center mt-4">
+                    <button class="btn excel_btn btn-primary" onclick="downloadExcel()">Download Excel</button>
+                </div>
+                <div class="head">
+                    <h4>Costs In Pie Chart</h4>
+                </div>
+                <div class="chart-container">
+                    <canvas id="costChart" height="200"></canvas>
+                </div>
+                <div class="analysis-container">
+                    <h4 class="cost-analysis-head">Cost Analysis</h4>
+                    <p class="cost-analysis-para"  id="highest-cost"></p>
+                    <p class="cost-analysis-para" id="lowest-cost"></p>
+                    <p class="cost-analysis-para" id="cost-decrease"></p>
+                    <p class="cost-analysis-para" id="income-comparison"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let expenses = [];
+        let totalIncome = 0;
+        let selectedMonth = '';
+        let costChart;
+
+        document.getElementById('expense-cost').addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                addCustomExpense();
+            }
+        });
+
+        function addCustomExpense() {
+            const expenseName = document.getElementById('expense-name').value.trim();
+            const expenseCost = parseFloat(document.getElementById('expense-cost').value.trim());
+
+            if (expenseName === '' || isNaN(expenseCost) || expenseCost < 0) {
+                alert('Please enter valid expense details.');
+                return;
+            }
+
+            const expenseItem = { name: expenseName, cost: expenseCost };
+            expenses.push(expenseItem);
+
+            displayExpenses();
+            calculateTotalCost();
+            updateChart();
+            performAnalysis();
+
+            document.getElementById('expense-name').value = '';
+            document.getElementById('expense-cost').value = '';
+        }
+
+        function displayExpenses() {
+            const expensesList = document.getElementById('expenses-list');
+            expensesList.innerHTML = '';
+
+            expenses.forEach((expense, index) => {
+                const expenseElement = document.createElement('div');
+                expenseElement.className = 'expense-item';
+                expenseElement.innerHTML = `
+                    <span>${expense.name}: ${expense.cost.toFixed(2)} Tk</span>
+                    <button class="btn btn-delete btn-sm" onclick="removeExpense(${index})">Remove</button>
+                `;
+                expensesList.appendChild(expenseElement);
+            });
+        }
+
+        function removeExpense(index) {
+            expenses.splice(index, 1);
+            displayExpenses();
+            calculateTotalCost();
+            updateChart();
+            performAnalysis();
+        }
+
+        function calculateTotalCost() {
+            const totalCost = expenses.reduce((sum, expense) => sum + expense.cost, 0);
+            document.getElementById('total-cost').textContent = `Total Cost: ${totalCost.toFixed(2)} Tk`;
+        }
+
+        function updateChart() {
+            const ctx = document.getElementById('costChart').getContext('2d');
+            const labels = expenses.map(expense => expense.name);
+            const data = expenses.map(expense => expense.cost);
+
+            if (costChart) {
+                costChart.destroy();
+            }
+
+            costChart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Expenses',
+                        data: data,
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.2)',
+                            'rgba(54, 162, 235, 0.2)',
+                            'rgba(255, 206, 86, 0.2)',
+                            'rgba(75, 192, 192, 0.2)',
+                            'rgba(153, 102, 255, 0.2)',
+                            'rgba(255, 159, 64, 0.2)'
+                        ],
+                        borderColor: [
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(255, 206, 86, 1)',
+                            'rgba(75, 192, 192, 1)',
+                            'rgba(153, 102, 255, 1)',
+                            'rgba(255, 159, 64, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false, // Ensure the chart is not constrained by parent dimensions
+                    aspectRatio: 1.5, // Aspect ratio to control chart height
+                    plugins: {
+                        legend: {
+                            position: 'top', // Position of the legend
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(tooltipItem) {
+                                    return `${tooltipItem.label}: $${tooltipItem.raw.toFixed(2)}`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function performAnalysis() {
+            if (expenses.length === 0) {
+                document.getElementById('highest-cost').textContent = 'Highest Cost: N/A';
+                document.getElementById('lowest-cost').textContent = 'Lowest Cost: N/A';
+                document.getElementById('cost-decrease').textContent = 'Cost to Decrease: N/A';
+                document.getElementById('income-comparison').textContent = 'Income Comparison: N/A';
+                return;
+            }
+
+            const highestCostItem = expenses.reduce((prev, current) => (prev.cost > current.cost) ? prev : current);
+            const lowestCostItem = expenses.reduce((prev, current) => (prev.cost < current.cost) ? prev : current);
+
+            document.getElementById('highest-cost').textContent = `Highest Cost: ${highestCostItem.name} - $${highestCostItem.cost.toFixed(2)}`;
+            document.getElementById('lowest-cost').textContent = `Lowest Cost: ${lowestCostItem.name} - $${lowestCostItem.cost.toFixed(2)}`;
+
+            const averageCost = expenses.reduce((sum, expense) => sum + expense.cost, 0) / expenses.length;
+            const costToDecrease = expenses.filter(expense => expense.cost > averageCost).map(expense => expense.name).join(', ');
+
+            document.getElementById('cost-decrease').
+            textContent = `Cost to Decrease: ${costToDecrease || 'N/A'}`;
+
+            const totalCost = expenses.reduce((sum, expense) => sum + expense.cost, 0);
+            totalIncome = parseFloat(document.getElementById('income').value.trim()) || 0;
+            const incomeComparison = totalIncome >= totalCost ? 'within' : 'exceeds';
+            document.getElementById('income-comparison').textContent = `Your total cost is ${incomeComparison} your income.`;
+        }
+
+        function downloadExcel() {
+            selectedMonth = document.getElementById('month-selector').value;
+
+            let csvContent = "data:text/csv;charset=utf-8,";
+            csvContent += "Month," + selectedMonth + "\n";
+            csvContent += "Expense Name,Expense Cost\n";
+
+            expenses.forEach(expense => {
+                csvContent += `${expense.name},${expense.cost}\n`;
+            });
+
+            const totalCost = expenses.reduce((sum, expense) => sum + expense.cost, 0);
+            csvContent += `Total Cost,${totalCost.toFixed(2)}\n`;
+            csvContent += `Total Income,${totalIncome.toFixed(2)}\n`;
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement('a');
+            link.setAttribute('href', encodedUri);
+            link.setAttribute('download', 'student_total_costs.csv');
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        document.getElementById('income').addEventListener('input', performAnalysis);
+        document.getElementById('month-selector').addEventListener('input', performAnalysis);
+
+        // Initial chart and analysis update
+        updateChart();
+        performAnalysis();
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+
+</body>
+</html>
